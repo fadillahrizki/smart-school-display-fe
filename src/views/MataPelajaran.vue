@@ -1,15 +1,67 @@
 <script setup>
-import { ref } from 'vue'
+import api from '@/services/api'
+import { onMounted, ref } from 'vue'
 
-const testUser = {
-  name: 'Math',
-  description: 'lorem ipsum dolor sit amet',
-  status: 'Active',
+const mataPelajarans = ref([])
+const open = ref(false)
+const isEdit = ref(false)
+const mataPelajaran = ref({
+  name: '',
+  description: ''
+})
+
+onMounted(() => {
+  getData()
+})
+
+const getData = () => {
+  api.get('/mata_pelajaran').then((response) => {
+    const { data } = response.data
+    mataPelajarans.value = data
+  })
 }
 
-const users = ref([...Array(10).keys()].map(() => testUser))
+const onSubmit = () => {
+  if (isEdit.value) {
+    api.put(`/mata_pelajaran/${mataPelajaran.value.id}`, mataPelajaran.value).then((response) => {
+      open.value = false
+      mataPelajaran.value = {
+        name: '',
+        description: ''
+      }
+      getData()
+    })
 
-const open = ref(false)
+    isEdit.value = false
+  } else {
+    api.post('/mata_pelajaran', mataPelajaran.value).then((response) => {
+      open.value = false
+      mataPelajaran.value = {
+        name: '',
+        description: ''
+      }
+      getData()
+    })
+  }
+
+}
+
+const onDelete = (mataPelajaran) => {
+  api.delete(`/mata_pelajaran/${mataPelajaran.id}`).then((response) => {
+    getData()
+  })
+}
+
+const onEdit = (mP) => {
+  open.value = true
+  isEdit.value = true
+  mataPelajaran.value = mP
+}
+
+const onAdd = () => {
+  open.value = true
+  isEdit.value = false
+}
 </script>
 
 <template>
@@ -20,7 +72,7 @@ const open = ref(false)
       </h3>
 
       <div>
-        <button @click="open = true"
+        <button @click="onAdd"
           class="px-4 py-2 font-medium tracking-wide text-white capitalize transition-colors duration-200 transform bg-indigo-600 rounded-md hover:bg-indigo-500 focus:outline-none focus:bg-indigo-500">
           Tambah Data
         </button>
@@ -38,7 +90,7 @@ const open = ref(false)
           <!-- Title -->
           <div class="flex items-center justify-between pb-3">
             <p class="text-2xl font-bold">
-              Tambah Data Mata Pelajaran
+              {{ isEdit ? 'Edit' : 'Tambah' }} Data Mata Pelajaran
             </p>
             <div class="z-50 cursor-pointer modal-close" @click="open = false">
               <svg class="text-black fill-current" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
@@ -54,12 +106,14 @@ const open = ref(false)
 
             <div>
               <label class="text-xs">Name</label>
-              <input type="text" class="w-full p-2 border bg-white border-gray-200 rounded-md" />
+              <input type="text" class="w-full p-2 border bg-white border-gray-200 rounded-md"
+                v-model="mataPelajaran.name" />
             </div>
 
             <div class="mt-2">
               <label class="text-xs">Description</label>
-              <textarea class="w-full p-2 border bg-white border-gray-200 rounded-md"></textarea>
+              <textarea class="w-full p-2 border bg-white border-gray-200 rounded-md"
+                v-model="mataPelajaran.description"></textarea>
             </div>
 
           </div>
@@ -74,7 +128,7 @@ const open = ref(false)
             </button>
             <button
               class="px-4 py-2 font-medium tracking-wide text-white bg-indigo-600 rounded-md hover:bg-indigo-500 focus:outline-none"
-              @click="open = false">
+              @click="onSubmit">
               Submit
             </button>
           </div>
@@ -105,7 +159,7 @@ const open = ref(false)
             </thead>
 
             <tbody class="bg-white">
-              <tr v-for="(u, index) in users" :key="index">
+              <tr v-for="(u, index) in mataPelajarans" :key="index">
                 <td class="px-6 py-4 border-b border-gray-200 whitespace-nowrap">
                   <div class="text-sm font-medium leading-5 text-gray-900">
                     {{ u.name }}
@@ -125,8 +179,8 @@ const open = ref(false)
                 </td>
 
                 <td class="px-6 py-4 text-sm font-medium text-right border-b border-gray-200">
-                  <a href="#" class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</a>
-                  <a href="#" class="text-red-600 hover:text-red-900">Delete</a>
+                  <a href="#" class="text-indigo-600 hover:text-indigo-900 mr-3" @click="onEdit(u)">Edit</a>
+                  <a href="#" class="text-red-600 hover:text-red-900" @click="onDelete(u)">Delete</a>
                 </td>
               </tr>
             </tbody>

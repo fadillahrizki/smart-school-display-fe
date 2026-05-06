@@ -1,21 +1,150 @@
 <script setup>
-import { ref } from 'vue'
+import api from '@/services/api'
+import { onMounted, ref } from 'vue'
 
-const testUser = {
-  guru: 'Suryati',
-  date: '2024-06-01',
-  description: 'lorem ipsum dolor sit amet',
-  status: 'Active',
+const teachers = ref([])
+const teacherDuties = ref([])
+const open = ref(false)
+const isEdit = ref(false)
+const duty = ref({
+  day: ''
+})
+
+onMounted(() => {
+  getData()
+  getTeachers()
+})
+
+const getData = () => {
+  api.get('/teacher_duties').then((response) => {
+    const { data } = response.data
+    teacherDuties.value = data
+  })
 }
 
-const users = ref([...Array(10).keys()].map(() => testUser))
+const getTeachers = () => {
+  api.get('/teachers').then((response) => {
+    const { data } = response.data
+    teachers.value = data
+  })
+}
+
+const onSubmit = () => {
+  if (isEdit.value) {
+    api.put(`/teacher_duties/${duty.value.id}`, duty.value).then((response) => {
+      open.value = false
+      duty.value = {
+        day: ''
+      }
+      getData()
+    })
+
+    isEdit.value = false
+  } else {
+    api.post('/teacher_duties', duty.value).then((response) => {
+      open.value = false
+      duty.value = {
+        day: ''
+      }
+      getData()
+    })
+  }
+
+}
+
+const onDelete = (teacher) => {
+  api.delete(`/teachers/${teacher.id}`).then((response) => {
+    getData()
+  })
+}
+
+const onEdit = (mP) => {
+  open.value = true
+  isEdit.value = true
+  duty.value = mP
+}
+
+const onAdd = () => {
+  open.value = true
+  isEdit.value = false
+}
 </script>
 
 <template>
   <div>
-    <h3 class="text-3xl font-medium text-gray-700">
-      Guru Piket
-    </h3>
+    <div class="flex justify-between">
+      <h3 class="text-3xl font-medium text-gray-700">
+        Guru Piket
+      </h3>
+
+      <div>
+        <button @click="onAdd"
+          class="px-4 py-2 font-medium tracking-wide text-white capitalize transition-colors duration-200 transform bg-indigo-600 rounded-md hover:bg-indigo-500 focus:outline-none focus:bg-indigo-500">
+          Tambah Data
+        </button>
+      </div>
+    </div>
+
+    <div :class="`modal ${!open && 'opacity-0 pointer-events-none'
+      } z-50 fixed w-full h-full top-0 left-0 flex items-center justify-center`">
+      <div class="absolute w-full h-full bg-gray-900 opacity-50 modal-overlay" @click="open = false" />
+
+      <div class="z-50 w-11/12 mx-auto overflow-y-auto bg-white rounded shadow-lg modal-container md:max-w-md">
+
+        <!-- Add margin if you want to see some of the overlay behind the modal -->
+        <div class="px-6 py-4 text-left modal-content">
+          <!-- Title -->
+          <div class="flex items-center justify-between pb-3">
+            <p class="text-2xl font-bold">
+              {{ isEdit ? 'Edit' : 'Tambah' }} Data Guru Piket
+            </p>
+            <div class="z-50 cursor-pointer modal-close" @click="open = false">
+              <svg class="text-black fill-current" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                viewBox="0 0 18 18">
+                <path
+                  d="M14.53 4.53l-1.06-1.06L9 7.94 4.53 3.47 3.47 4.53 7.94 9l-4.47 4.47 1.06 1.06L9 10.06l4.47 4.47 1.06-1.06L10.06 9z" />
+              </svg>
+            </div>
+          </div>
+
+          <!-- Body -->
+          <div>
+
+            <div>
+              <label class="text-xs">Day</label>
+              <input type="text" class="w-full p-2 border bg-white border-gray-200 rounded-md" v-model="duty.day" />
+            </div>
+
+            <div class="mt-2">
+              <label class="text-xs">Teacher</label>
+              <select name="teacher" id="teacher" class="w-full p-2 border bg-white border-gray-200 rounded-md"
+                v-model="duty.teacher_id">
+                <option value="" selected>Pilih Teacher</option>
+                <option v-for="teacher in teachers" :key="teacher.id" :value="teacher.id">
+                  {{ teacher.name }}
+                </option>
+              </select>
+            </div>
+
+          </div>
+
+
+          <!-- Footer -->
+          <div class="flex justify-end pt-2">
+            <button
+              class="p-2 px-4 py-2 mr-2 text-indigo-500 bg-transparent rounded-lg hover:bg-gray-100 hover:text-indigo-400 focus:outline-none"
+              @click="open = false">
+              Close
+            </button>
+            <button
+              class="px-4 py-2 font-medium tracking-wide text-white bg-indigo-600 rounded-md hover:bg-indigo-500 focus:outline-none"
+              @click="onSubmit">
+              Submit
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <div class="flex flex-col mt-8">
       <div class="py-2 -my-2 overflow-x-auto sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
@@ -25,15 +154,11 @@ const users = ref([...Array(10).keys()].map(() => testUser))
               <tr>
                 <th
                   class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
-                  Name
+                  Teacher
                 </th>
                 <th
                   class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
-                  Date
-                </th>
-                <th
-                  class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
-                  Description
+                  Day
                 </th>
                 <th
                   class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
@@ -44,22 +169,16 @@ const users = ref([...Array(10).keys()].map(() => testUser))
             </thead>
 
             <tbody class="bg-white">
-              <tr v-for="(u, index) in users" :key="index">
+              <tr v-for="(u, index) in teacherDuties" :key="index">
                 <td class="px-6 py-4 border-b border-gray-200 whitespace-nowrap">
                   <div class="text-sm font-medium leading-5 text-gray-900">
-                    {{ u.guru }}
+                    {{ u.teacher.name }}
                   </div>
                 </td>
 
                 <td class="px-6 py-4 border-b border-gray-200 whitespace-nowrap">
                   <div class="text-sm text-gray-900">
-                    {{ u.date }}
-                  </div>
-                </td>
-
-                <td class="px-6 py-4 border-b border-gray-200 whitespace-nowrap">
-                  <div class="text-sm text-gray-900">
-                    {{ u.description }}
+                    {{ u.day }}
                   </div>
                 </td>
 
@@ -71,7 +190,8 @@ const users = ref([...Array(10).keys()].map(() => testUser))
 
                 <td
                   class="px-6 py-4 text-sm font-medium leading-5 text-right border-b border-gray-200 whitespace-nowrap">
-                  <a href="#" class="text-indigo-600 hover:text-indigo-900">Edit</a>
+                  <a href="#" class="text-indigo-600 hover:text-indigo-900 mr-3" @click="onEdit(u)">Edit</a>
+                  <a href="#" class="text-red-600 hover:text-red-900" @click="onDelete(u)">Delete</a>
                 </td>
               </tr>
             </tbody>

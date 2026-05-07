@@ -1,4 +1,5 @@
 <script setup>
+import Loading from '@/components/Loading.vue'
 import api from '@/services/api'
 import { onMounted, ref } from 'vue'
 
@@ -6,6 +7,7 @@ const teachers = ref([])
 const mataPelajarans = ref([])
 const open = ref(false)
 const isEdit = ref(false)
+const isLoading = ref(false)
 const teacher = ref({
   name: ''
 })
@@ -16,9 +18,12 @@ onMounted(() => {
 })
 
 const getData = () => {
+  isLoading.value = true
   api.get('/teachers').then((response) => {
     const { data } = response.data
     teachers.value = data
+  }).finally(() => {
+    isLoading.value = false
   })
 }
 
@@ -146,7 +151,9 @@ const onAdd = () => {
       </div>
     </div>
 
-    <div class="flex flex-col mt-8">
+    <Loading v-if="isLoading" />
+
+    <div v-else class="flex flex-col mt-8">
       <div class="py-2 -my-2 overflow-x-auto sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
         <div class="inline-block min-w-full overflow-hidden align-middle border-b border-gray-200 shadow sm:rounded-lg">
           <table class="min-w-full">

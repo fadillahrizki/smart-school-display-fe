@@ -1,10 +1,12 @@
 <script setup>
+import Loading from '@/components/Loading.vue'
 import api from '@/services/api'
 import { onMounted, ref } from 'vue'
 
 const agendaKegiatans = ref([])
 const open = ref(false)
 const isEdit = ref(false)
+const isLoading = ref(false)
 const agendaKegiatan = ref({
   title: '',
   description: ''
@@ -15,9 +17,12 @@ onMounted(() => {
 })
 
 const getData = () => {
+  isLoading.value = true
   api.get('/agendas').then((response) => {
     const { data } = response.data
     agendaKegiatans.value = data
+  }).finally(() => {
+    isLoading.value = false
   })
 }
 
@@ -136,7 +141,9 @@ const onAdd = () => {
       </div>
     </div>
 
-    <div class="flex flex-col mt-8">
+    <Loading v-if="isLoading" />
+
+    <div v-else class="flex flex-col mt-8">
       <div class="py-2 -my-2 overflow-x-auto sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
         <div class="inline-block min-w-full overflow-hidden align-middle border-b border-gray-200 shadow sm:rounded-lg">
           <table class="min-w-full">

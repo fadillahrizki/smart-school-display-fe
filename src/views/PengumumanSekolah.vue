@@ -2,6 +2,7 @@
 import Loading from '@/components/Loading.vue'
 import api from '@/services/api'
 import { onMounted, ref } from 'vue'
+import { a } from 'vue-router/dist/index-BzEKChPW.js'
 
 const announcements = ref([])
 const open = ref(false)
@@ -72,6 +73,12 @@ const onEdit = (mP) => {
 const onAdd = () => {
   open.value = true
   isEdit.value = false
+  announcement.value = {
+    title: '',
+    start_date: '',
+    end_date: '',
+    content: ''
+  }
 }
 </script>
 

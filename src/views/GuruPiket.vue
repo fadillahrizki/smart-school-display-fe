@@ -11,7 +11,7 @@ const isLoading = ref(false)
 const duty = ref({
   day: ''
 })
-
+const days = ref(["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"])
 onMounted(() => {
   getData()
   getTeachers()
@@ -72,6 +72,9 @@ const onEdit = (mP) => {
 const onAdd = () => {
   open.value = true
   isEdit.value = false
+  duty.value = {
+    day: ''
+  }
 }
 </script>
 
@@ -117,7 +120,12 @@ const onAdd = () => {
 
             <div>
               <label class="text-xs">Day</label>
-              <input type="text" class="w-full p-2 border bg-white border-gray-200 rounded-md" v-model="duty.day" />
+              <select class="w-full p-2 border bg-white border-gray-200 rounded-md" v-model="duty.day">
+                <option value="" selected readonly>Pilih Hari</option>
+                <option v-for="day in days" :key="day" :value="day">
+                  {{ day }}
+                </option>
+              </select>
             </div>
 
             <div class="mt-2">

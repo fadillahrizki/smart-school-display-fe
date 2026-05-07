@@ -65,6 +65,10 @@ const onEdit = (mP) => {
 const onAdd = () => {
   open.value = true
   isEdit.value = false
+  kelasData.value = {
+    name: '',
+    description: ''
+  }
 }
 </script>
 

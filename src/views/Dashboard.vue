@@ -1,5 +1,6 @@
 <script setup>
-import { ref } from 'vue'
+import api from '@/services/api'
+import { onMounted, ref } from 'vue'
 
 const testUser = {
   name: 'John Doe',
@@ -11,6 +12,17 @@ const testUser = {
 }
 
 const users = ref([...Array(10).keys()].map(() => testUser))
+const stats = ref({})
+
+onMounted(() => {
+  getStats()
+})
+
+const getStats = () => {
+  api.get('/stats').then((response) => {
+    stats.value = response.data
+  })
+}
 </script>
 
 <template>
@@ -48,10 +60,10 @@ const users = ref([...Array(10).keys()].map(() => testUser))
 
             <div class="mx-5">
               <h4 class="text-2xl font-semibold text-gray-700">
-                8,282
+                {{ stats.teacher_count || 0 }}
               </h4>
               <div class="text-gray-500">
-                New Users
+                Guru
               </div>
             </div>
           </div>
@@ -60,25 +72,21 @@ const users = ref([...Array(10).keys()].map(() => testUser))
         <div class="w-full px-6 mt-6 sm:w-1/2 xl:w-1/3 sm:mt-0">
           <div class="flex items-center px-5 py-6 bg-white rounded-md shadow-sm">
             <div class="p-3 bg-blue-600 bg-opacity-75 rounded-full">
-              <svg class="w-8 h-8 text-white" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <svg class="w-8 h-8 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                fill="currentColor">
                 <path
-                  d="M4.19999 1.4C3.4268 1.4 2.79999 2.02681 2.79999 2.8C2.79999 3.57319 3.4268 4.2 4.19999 4.2H5.9069L6.33468 5.91114C6.33917 5.93092 6.34409 5.95055 6.34941 5.97001L8.24953 13.5705L6.99992 14.8201C5.23602 16.584 6.48528 19.6 8.97981 19.6H21C21.7731 19.6 22.4 18.9732 22.4 18.2C22.4 17.4268 21.7731 16.8 21 16.8H8.97983L10.3798 15.4H19.6C20.1303 15.4 20.615 15.1004 20.8521 14.6261L25.0521 6.22609C25.2691 5.79212 25.246 5.27673 24.991 4.86398C24.7357 4.45123 24.2852 4.2 23.8 4.2H8.79308L8.35818 2.46044C8.20238 1.83722 7.64241 1.4 6.99999 1.4H4.19999Z"
-                  fill="currentColor" />
+                  d="M11.47 3.841a.75.75 0 0 1 1.06 0l8.69 8.69a.75.75 0 1 0 1.06-1.061l-8.689-8.69a2.25 2.25 0 0 0-3.182 0l-8.69 8.69a.75.75 0 1 0 1.061 1.06l8.69-8.689Z" />
                 <path
-                  d="M22.4 23.1C22.4 24.2598 21.4598 25.2 20.3 25.2C19.1403 25.2 18.2 24.2598 18.2 23.1C18.2 21.9402 19.1403 21 20.3 21C21.4598 21 22.4 21.9402 22.4 23.1Z"
-                  fill="currentColor" />
-                <path
-                  d="M9.1 25.2C10.2598 25.2 11.2 24.2598 11.2 23.1C11.2 21.9402 10.2598 21 9.1 21C7.9402 21 7 21.9402 7 23.1C7 24.2598 7.9402 25.2 9.1 25.2Z"
-                  fill="currentColor" />
+                  d="m12 5.432 8.159 8.159c.03.03.06.058.091.086v6.198c0 1.035-.84 1.875-1.875 1.875H15a.75.75 0 0 1-.75-.75v-4.5a.75.75 0 0 0-.75-.75h-3a.75.75 0 0 0-.75.75V21a.75.75 0 0 1-.75.75H5.625a1.875 1.875 0 0 1-1.875-1.875v-6.198a2.29 2.29 0 0 0 .091-.086L12 5.432Z" />
               </svg>
             </div>
 
             <div class="mx-5">
               <h4 class="text-2xl font-semibold text-gray-700">
-                200,521
+                {{ stats.kelas_count || 0 }}
               </h4>
               <div class="text-gray-500">
-                Total Orders
+                Kelas
               </div>
             </div>
           </div>
@@ -87,21 +95,22 @@ const users = ref([...Array(10).keys()].map(() => testUser))
         <div class="w-full px-6 mt-6 sm:w-1/2 xl:w-1/3 xl:mt-0">
           <div class="flex items-center px-5 py-6 bg-white rounded-md shadow-sm">
             <div class="p-3 bg-pink-600 bg-opacity-75 rounded-full">
-              <svg class="w-8 h-8 text-white" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M6.99998 11.2H21L22.4 23.8H5.59998L6.99998 11.2Z" fill="currentColor" stroke="currentColor"
-                  stroke-width="2" stroke-linejoin="round" />
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+                class="w-8 h-8 text-white">
                 <path
-                  d="M9.79999 8.4C9.79999 6.08041 11.6804 4.2 14 4.2C16.3196 4.2 18.2 6.08041 18.2 8.4V12.6C18.2 14.9197 16.3196 16.8 14 16.8C11.6804 16.8 9.79999 14.9197 9.79999 12.6V8.4Z"
-                  stroke="currentColor" stroke-width="2" />
+                  d="M4.913 2.658c2.075-.27 4.19-.408 6.337-.408 2.147 0 4.262.139 6.337.408 1.922.25 3.291 1.861 3.405 3.727a4.403 4.403 0 0 0-1.032-.211 50.89 50.89 0 0 0-8.42 0c-2.358.196-4.04 2.19-4.04 4.434v4.286a4.47 4.47 0 0 0 2.433 3.984L7.28 21.53A.75.75 0 0 1 6 21v-4.03a48.527 48.527 0 0 1-1.087-.128C2.905 16.58 1.5 14.833 1.5 12.862V6.638c0-1.97 1.405-3.718 3.413-3.979Z" />
+                <path
+                  d="M15.75 7.5c-1.376 0-2.739.057-4.086.169C10.124 7.797 9 9.103 9 10.609v4.285c0 1.507 1.128 2.814 2.67 2.94 1.243.102 2.5.157 3.768.165l2.782 2.781a.75.75 0 0 0 1.28-.53v-2.39l.33-.026c1.542-.125 2.67-1.433 2.67-2.94v-4.286c0-1.505-1.125-2.811-2.664-2.94A49.392 49.392 0 0 0 15.75 7.5Z" />
               </svg>
+
             </div>
 
             <div class="mx-5">
               <h4 class="text-2xl font-semibold text-gray-700">
-                215,542
+                {{ stats.agenda_count || 0 }}
               </h4>
               <div class="text-gray-500">
-                Available Products
+                Agenda
               </div>
             </div>
           </div>
@@ -170,7 +179,7 @@ const users = ref([...Array(10).keys()].map(() => testUser))
                 <td class="px-6 py-4 border-b border-gray-200 whitespace-nowrap">
                   <span
                     class="inline-flex px-2 text-xs font-semibold leading-5 text-green-800 bg-green-100 rounded-full">{{
-                    u.status }}</span>
+                      u.status }}</span>
                 </td>
 
                 <td class="px-6 py-4 text-sm leading-5 text-gray-500 border-b border-gray-200 whitespace-nowrap">

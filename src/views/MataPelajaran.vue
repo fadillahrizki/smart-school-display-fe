@@ -66,6 +66,10 @@ const onEdit = (mP) => {
 const onAdd = () => {
   open.value = true
   isEdit.value = false
+  mataPelajaran.value = {
+    name: '',
+    description: ''
+  }
 }
 </script>
 

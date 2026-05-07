@@ -72,6 +72,9 @@ const onEdit = (mP) => {
 const onAdd = () => {
   open.value = true
   isEdit.value = false
+  teacher.value = {
+    name: ''
+  }
 }
 </script>
 

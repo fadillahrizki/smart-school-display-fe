@@ -86,6 +86,10 @@ const onEdit = (mP) => {
 const onAdd = () => {
   open.value = true
   isEdit.value = false
+  schedule.value = {
+    start_time: '',
+    end_time: ''
+  }
 }
 </script>
 
